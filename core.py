@@ -1,0 +1,230 @@
+#
+# written by @author ZyzonixDev
+# published by ZyzonixDevelopments
+# -
+# date      | Sun Jan 03 2021
+# python-v  | 3.5.3
+# -
+# file      | core.py
+# file-v    | 0.8
+#
+# USING FOLLOWING RESSOURCE(S):
+# 
+# https://zetcode.com/python/ftp/
+# https://pythontic.com/ftplib/ftp/nlst
+# https://www.thepythoncode.com/article/download-and-upload-files-in-ftp-server-using-python
+# 
+#--------------------------------------
+
+from datetime import date, datetime
+import sys
+import threading
+import smbus
+import sqlite3
+import ftplib
+import traceback
+import os
+import station.air_stats as ais
+import station.air_quality as aiq
+import sqldb as dbHandler
+import station.sys_stats as sysStats
+
+# public variables (static values)
+# --
+# value for seconds between each meassurement
+SECONDS = 10
+SYNC_TIME = 15    #3600 - one hour
+
+# writing console output to console and logfile
+class LogWriter(object):
+    def __init__(self, *files):
+        # retrieving files / output locations
+        self.files = files
+    def write(self, obj):
+        # getting files (logfile / console (as file))
+        for file in self.files:
+            file.write(obj)
+            file.flush()
+    def flush(self):
+        # flushing written lines/files
+        for file in self.files:
+            file.flush()
+
+
+
+# data import / measurement / saving data
+class handleMeasurement(object):
+
+    # getting db formatted date/time
+    def getTime(self):
+        curTime = "" + str(datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+        return curTime
+
+    # storing to SQLite database
+    def storeData(self, dbConnection):
+        print(s)
+
+    # retrieving data
+    def retrieveData(self):
+        # creating/initializing next autorun
+        threading.Timer(SECONDS, handleMeasurement.retrieveData, [self]).start()
+        print(self.getTime(), "installed next autorun --> collecting data")
+        self.PARTICULATE_MATTER_MES = self.PARTICULATE_MATTER_MES + 1
+
+        dbConnection = dbHandler.getDBConnection(self)
+        try:
+            # getting values
+            temperature = ais.getTemperature()
+            # splitting temperature array (see station.air_stats.getTemperature() for further information)
+            f_temperature = temperature[0]
+            raw_temperature = temperature[1]
+            humidity = ais.getHumidity()
+            pressure = ais.getPressure()
+            print(self.getTime(), "collected air_stats data successfully: temperature:", f_temperature, ", humidity:", humidity,", pressure:", pressure)
+            cpu_usage, ram_usage = sysStats.getSysStats(self)
+            print(self.getTime(), "collected system data successfully: cpu-usage (percent):", cpu_usage, ", ram-usage (percent):", ram_usage)
+            
+            # building sqlite command (previous version resulted in error [str max 3 values]) 
+            # SQL changes type from string back to integer when pasting into db 
+            cmdbuilder = "'" + handleMeasurement.getTime(self) + "', "
+            cmdbuilder += str(f_temperature) + ", "
+            cmdbuilder += str(raw_temperature) + ", " 
+            cmdbuilder += str(humidity) + ", " 
+            cmdbuilder += str(pressure) + ", "
+            cmdbuilder += str(cpu_usage) + ", "
+            cmdbuilder += str(ram_usage)
+            
+            # storing data
+            dbHandler.insertData(self, dbConnection, self.airstable, cmdbuilder)
+        except:
+            print(self.getTime(), "something went wrong while collecting airstats data")
+            traceback.print_exc()
+
+        if self.PARTICULATE_MATTER_MES == 1:
+            try:
+                # import class (seperate self statement required)
+                airquality = aiq.AIR_QUALITY()
+                pm025, pm100 = airquality.query()
+                print(self.getTime(), "collected air_quality data successfully: pm2.5:", pm025, "pm10:", pm100)
+
+                cmdbuilder = "'" + handleMeasurement.getTime(self) + "', "
+                cmdbuilder += str(pm025) + ", "
+                cmdbuilder += str(pm100)
+
+                # storing data
+                dbHandler.insertData(self, dbConnection, self.airqtable, cmdbuilder)
+            except:
+                print(self.getTime(), "something went wrong while collecting airquality data")
+                traceback.print_exc()   
+            self.PARTICULATE_MATTER_MES = self.PARTICULATE_MATTER_MES = 0
+
+
+        dbHandler.closeDBConnection(self, dbConnection)
+        #print("\n")    
+
+# syncing db files to smb share
+class dbUpload(object):
+    
+    # syncing missing files
+    def syncMissing(self, mfileList, ftpConnection):
+        leftToSync = mfileList
+        print(self.getTime(), "syncing the following databases to ftp share: " + str(leftToSync))
+        try:
+            for sfile in leftToSync:
+                uploadCMD = "STOR " + sfile
+                file = open("/home/pi/weatherstation/db/" + sfile, "rb")
+                # uploading to ftp share
+                ftpConnection.storbinary(uploadCMD, file)
+                leftToSync.remove(sfile)
+            print(self.getTime(), "syncing successfull - all databases have been synced\n")    
+        except:
+            print(self.getTime(), "something went wrong - was not able to sync missing databases\n")
+            traceback.print_exc()
+        ftpConnection.quit()
+
+    # checking if ftp db storage equals local db storage
+    def checkContent(self, rFileList, ftpConnection):
+        # retrieving local db storage
+        localFileList = []
+        remoteFileList = rFileList
+        for file in os.listdir(self.baseFilePath + "db/"):
+            localFileList.append(file)
+
+        # deleting files, that are in both lists --> extracting unsynced files
+        for rfile in remoteFileList:
+            for lfile in localFileList:
+                if rfile == lfile:
+                    # deleting items
+                    localFileList.remove(lfile)
+                    remoteFileList.remove(lfile)
+        # checking if length of localFileList
+        if len(localFileList) == 0:
+            print(self.getTime(), "all files are synced to ftp share - nothing left to sync")
+            # cancel connection
+            ftpConnection.quit()
+            return
+        else: 
+            dbUpload.syncMissing(self, localFileList, ftpConnection)
+
+    # getting available files
+    def getFTPContent(self, ftpConnection):
+        # changing directory to specified db storage
+        ftpConnection.cwd(self.FTPshareLoc)
+        # retrieving available files
+        existingFiles = []
+        for filename in ftpConnection.nlst():
+            existingFiles.append(filename)
+        print(self.getTime(), "retrieved existing files of '" + self.FTPshareLoc + "' (number of existing files: " + str(len(existingFiles)) + ")") 
+        dbUpload.checkContent(self, existingFiles, ftpConnection)
+    
+    # initializes a ftp connection
+    def getFTPConnection(self):
+        threading.Timer(SYNC_TIME, dbUpload.getFTPConnection, [self]).start()
+        print(self.getTime(), "scheduled next autorun for syncing databases to ftp share")
+        try: 
+            ftpConnection = ftplib.FTP(self.FTPServerIP)
+            # logs in into the ftp share
+            ftpConnection.login("rpi3abll", "rpi3abll")
+            print(self.getTime(), "ftp connection successfull, welcomemsg: " + ftpConnection.getwelcome())
+            # starting sycing process
+            dbUpload.getFTPContent(self, ftpConnection)
+        except:
+            print(self.getTime(), "something went wrong - was not able to initialize a ftp connection to: " + self.FTPServerIP + " - server may be offline\n")
+            # prints stack trace
+            #traceback.print_exc()   
+    
+
+# core class - sensor setup, data controlling, database intialization/setup, threading setup
+class Core(object):
+
+    # console time service
+    def getTime(self):
+        curTime = "[" + str(datetime.now().strftime("%H:%M:%S")) + "]"
+        return curTime
+
+    # writing console to log
+    def writeLog(self):
+        self.logFile = open(self.baseFilePath + "logs/" + str(date.today()) + "_" + str(datetime.now().strftime("%H-%M-%S")) + "_log.txt", "w")
+        sys.stdout
+        sys.stdout = LogWriter(sys.stdout, self.logFile)
+
+    def __init__(self):
+        # saving ressources globally (like public)
+        self.baseFilePath = "/home/pi/weatherstation/"
+        self.FTPServerIP = "192.168.8.3"
+        self.FTPshareLoc = "dietzmpenas-bll/databases/"
+        # initializing log
+        self.writeLog()
+        # values for protection of the particulate matter sensor (meassurement only every 2min)
+        self.PARTICULATE_MATTER_MES = 0
+        print("\n" + self.getTime(), "running core application \n")
+        # running measurement
+        #handleMeasurement.retrieveData(self)
+        # initializing db sync with 5 seconds delay (prevents corrupted databases through double access)
+        threading.Timer(5, dbUpload.getFTPConnection, [self]).start()
+
+    
+
+
+if __name__ == '__main__':
+    Core()    
