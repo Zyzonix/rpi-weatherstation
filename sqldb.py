@@ -20,7 +20,7 @@ import traceback
 from core import Core 
 
 # DB structure: 
-# air_stats: timestamp TEXT, temperature FLOAT, temperature_raw FLOAT, humidity FLOAT, pressure FLOAT, cpu_usage FLOAT, ram_usage FLOAT
+# air_stats: timestamp TEXT, temperature FLOAT, temperature_raw FLOAT, humidity FLOAT, pressure FLOAT, cpu_usage FLOAT, ram_usage FLOAT, cpu_temp FLOAT
 # air_quality: timestamp TEXT, air_2_5 FLOAT, air_10 FLOAT
 
 # setting up column description
@@ -32,7 +32,7 @@ def dbSetup(self, dbConnection):
     self.airqtable = "air_quality"
     self.airstable = "air_stats" 
     # creating sql tables
-    dbCursor.execute("CREATE TABLE IF NOT EXISTS " + self.airstable + " (timestamp TEXT, temperature FLOAT, temperature_raw FLOAT, humidity FLOAT, pressure FLOAT, cpu_usage FLOAT, ram_usage FLOAT)")
+    dbCursor.execute("CREATE TABLE IF NOT EXISTS " + self.airstable + " (timestamp TEXT, temperature FLOAT, temperature_raw FLOAT, humidity FLOAT, pressure FLOAT, cpu_usage FLOAT, ram_usage FLOAT, cpu_temp FLOAT)")
     dbCursor.execute("CREATE TABLE IF NOT EXISTS " + self.airqtable + " (timestamp TEXT, air_2_5 FLOAT, air_10 FLOAT)")
     dbConnection.commit()
     self.db = dbConnection
@@ -41,6 +41,8 @@ def dbSetup(self, dbConnection):
 def getDBConnection(self):
     # db path
     self.dbLocation = self.baseFilePath + "db/" + str(date.today()) + ".db"
+    # registrating daily db for syncing
+    self.dbCurName = str(date.today()) + ".db"
     # checking if db exists
     if not os.path.exists(self.dbLocation):
         # creating db and opening connection to sqlite3 DB

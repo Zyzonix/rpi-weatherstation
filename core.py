@@ -6,14 +6,15 @@
 # python-v  | 3.5.3
 # -
 # file      | core.py
-# file-v    | 0.8
+# file-v    | 1.0 // first stable release
 #
 # USING FOLLOWING RESSOURCE(S):
 # 
 # https://zetcode.com/python/ftp/
 # https://pythontic.com/ftplib/ftp/nlst
 # https://www.thepythoncode.com/article/download-and-upload-files-in-ftp-server-using-python
-# 
+# https://thispointer.com/compare-get-differences-between-two-lists-in-python/  
+#
 #--------------------------------------
 
 from datetime import date, datetime
@@ -32,8 +33,10 @@ import station.sys_stats as sysStats
 # public variables (static values)
 # --
 # value for seconds between each meassurement
-SECONDS = 10
-SYNC_TIME = 15    #3600 - one hour
+SECONDS = 15
+SYNC_TIME = 30    #3600 - one hour
+# value for particulate measurement, number how often loops are left out (8 = measurement every 2 mins)
+AIR_QUALITY_TIME = 8
 
 # writing console output to console and logfile
 class LogWriter(object):
@@ -81,8 +84,8 @@ class handleMeasurement(object):
             humidity = ais.getHumidity()
             pressure = ais.getPressure()
             print(self.getTime(), "collected air_stats data successfully: temperature:", f_temperature, ", humidity:", humidity,", pressure:", pressure)
-            cpu_usage, ram_usage = sysStats.getSysStats(self)
-            print(self.getTime(), "collected system data successfully: cpu-usage (percent):", cpu_usage, ", ram-usage (percent):", ram_usage)
+            cpu_usage, ram_usage, cpu_temp = sysStats.getSysStats(self)
+            print(self.getTime(), "collected system data successfully: cpu-usage (percent):", cpu_usage, ", ram-usage (percent):", ram_usage, ", cpu-temperature (°C):", cpu_temp)
             
             # building sqlite command (previous version resulted in error [str max 3 values]) 
             # SQL changes type from string back to integer when pasting into db 
@@ -92,7 +95,8 @@ class handleMeasurement(object):
             cmdbuilder += str(humidity) + ", " 
             cmdbuilder += str(pressure) + ", "
             cmdbuilder += str(cpu_usage) + ", "
-            cmdbuilder += str(ram_usage)
+            cmdbuilder += str(ram_usage) + ", "
+            cmdbuilder += str(cpu_temp)
             
             # storing data
             dbHandler.insertData(self, dbConnection, self.airstable, cmdbuilder)
@@ -100,7 +104,7 @@ class handleMeasurement(object):
             print(self.getTime(), "something went wrong while collecting airstats data")
             traceback.print_exc()
 
-        if self.PARTICULATE_MATTER_MES == 1:
+        if self.PARTICULATE_MATTER_MES == AIR_QUALITY_TIME:
             try:
                 # import class (seperate self statement required)
                 airquality = aiq.AIR_QUALITY()
@@ -128,18 +132,28 @@ class dbUpload(object):
     # syncing missing files
     def syncMissing(self, mfileList, ftpConnection):
         leftToSync = mfileList
-        print(self.getTime(), "syncing the following databases to ftp share: " + str(leftToSync))
         try:
             for sfile in leftToSync:
+                print(self.getTime(), "syncing the following database to ftp share: " + sfile)
+                leftToSync.remove(sfile)
                 uploadCMD = "STOR " + sfile
                 file = open("/home/pi/weatherstation/db/" + sfile, "rb")
                 # uploading to ftp share
                 ftpConnection.storbinary(uploadCMD, file)
-                leftToSync.remove(sfile)
+            # checking if all databases have been synced, if not --> rerun (throwed an error before [some db's were left out], reason unknown - this method prevents this failure)
+            if len(leftToSync) != 0:
+                self.syncFinished = False
+                dbUpload.syncMissing(self, leftToSync, ftpConnection)
+                return
+            else:
+                self.syncFinished = True      
+            # confirming that sync is finished       
             print(self.getTime(), "syncing successfull - all databases have been synced\n")    
         except:
             print(self.getTime(), "something went wrong - was not able to sync missing databases\n")
+            self.syncFinished = False
             traceback.print_exc()
+        self.syncFinished = True  
         ftpConnection.quit()
 
     # checking if ftp db storage equals local db storage
@@ -149,22 +163,27 @@ class dbUpload(object):
         remoteFileList = rFileList
         for file in os.listdir(self.baseFilePath + "db/"):
             localFileList.append(file)
-
-        # deleting files, that are in both lists --> extracting unsynced files
-        for rfile in remoteFileList:
-            for lfile in localFileList:
-                if rfile == lfile:
-                    # deleting items
-                    localFileList.remove(lfile)
-                    remoteFileList.remove(lfile)
+        # make lists compareable
+        slocalFileList = set(localFileList)
+        sremoteFileList = set(remoteFileList)
+        # extracting unsynced files
+        toSync = (slocalFileList - sremoteFileList).union(sremoteFileList - slocalFileList)
+        #print(toSync)         
         # checking if length of localFileList
-        if len(localFileList) == 0:
-            print(self.getTime(), "all files are synced to ftp share - nothing left to sync")
-            # cancel connection
-            ftpConnection.quit()
-            return
-        else: 
-            dbUpload.syncMissing(self, localFileList, ftpConnection)
+        if not toSync:
+            print(self.getTime(), "all past files are synced to ftp share - syncing daily db (" + self.dbCurName + ")")
+            # adding daily db
+            listtoSync = list(toSync)
+            listtoSync.append(self.dbCurName)
+            try:
+                ftpConnection.delete(self.dbCurName)
+            except:
+                print(self.getTime(), "something went wrong - could not delete daily db")    
+            
+        else:
+            listtoSync = list(toSync)    
+        # starting db syncing process
+        dbUpload.syncMissing(self, listtoSync, ftpConnection)
 
     # getting available files
     def getFTPContent(self, ftpConnection):
@@ -180,6 +199,9 @@ class dbUpload(object):
     # initializes a ftp connection
     def getFTPConnection(self):
         threading.Timer(SYNC_TIME, dbUpload.getFTPConnection, [self]).start()
+        if self.syncFinished == False:
+            print(self.getTime(), "last sycning process hasn't been finished yet\n")
+            return 
         print(self.getTime(), "scheduled next autorun for syncing databases to ftp share")
         try: 
             ftpConnection = ftplib.FTP(self.FTPServerIP)
@@ -187,6 +209,7 @@ class dbUpload(object):
             ftpConnection.login("rpi3abll", "rpi3abll")
             print(self.getTime(), "ftp connection successfull, welcomemsg: " + ftpConnection.getwelcome())
             # starting sycing process
+            self.syncFinished = False   
             dbUpload.getFTPContent(self, ftpConnection)
         except:
             print(self.getTime(), "something went wrong - was not able to initialize a ftp connection to: " + self.FTPServerIP + " - server may be offline\n")
@@ -209,17 +232,18 @@ class Core(object):
         sys.stdout = LogWriter(sys.stdout, self.logFile)
 
     def __init__(self):
-        # saving ressources globally (like public)
+        # saving ressources global (like public)
         self.baseFilePath = "/home/pi/weatherstation/"
         self.FTPServerIP = "192.168.8.3"
         self.FTPshareLoc = "dietzmpenas-bll/databases/"
+        self.syncFinished = True
         # initializing log
         self.writeLog()
         # values for protection of the particulate matter sensor (meassurement only every 2min)
         self.PARTICULATE_MATTER_MES = 0
         print("\n" + self.getTime(), "running core application \n")
         # running measurement
-        #handleMeasurement.retrieveData(self)
+        handleMeasurement.retrieveData(self)
         # initializing db sync with 5 seconds delay (prevents corrupted databases through double access)
         threading.Timer(5, dbUpload.getFTPConnection, [self]).start()
 
