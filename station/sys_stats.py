@@ -13,7 +13,9 @@
 #--------------------------------------
 import psutil
 
+# retrieving system statistics
 def getSysStats(self):
     cpu = psutil.cpu_percent()
     ram = psutil.virtual_memory().percent
-    return cpu, ram
+    cput = cput = float(open('/sys/class/thermal/thermal_zone0/temp').read())/1000
+    return cpu, ram, cput
