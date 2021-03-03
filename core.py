@@ -32,7 +32,7 @@ import station.sys_stats as sysStats
 
 # public variables (static values)
 # --
-# value for seconds between each meassurement
+# value for seconds between each measurement
 SECONDS = 15
 SYNC_TIME = 30    #3600 - one hour
 # value for particulate measurement, number how often loops are left out (8 = measurement every 2 mins)
