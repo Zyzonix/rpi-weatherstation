@@ -1,0 +1,14 @@
+[Unit]
+Description=Weatherstation Runningservice
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/pi/rpi-weatherstation/core.py
+WorkingDirectory=/home/pi/rpi-weatherstation/
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi	
+
+[Install]
+WantedBy=multi-user.target
