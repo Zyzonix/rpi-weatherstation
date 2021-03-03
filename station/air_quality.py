@@ -10,10 +10,10 @@
 # USING FOLLOWING RESSOURCE(S):
 # https://github.com/binh-bk/nova_fitness_sds011
 # - 
+
 import struct
 import serial
 import time
-
 
 # access to values: station.air_quality.AIR_QUALITY().query()
 
