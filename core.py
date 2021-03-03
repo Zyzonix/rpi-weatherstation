@@ -6,7 +6,7 @@
 # python-v  | 3.5.3
 # -
 # file      | core.py
-# file-v    | 1.0 // first stable release
+# file-v    | 1.1 // implemented config file
 #
 # USING FOLLOWING RESSOURCE(S):
 # 
@@ -18,6 +18,7 @@
 #--------------------------------------
 
 from datetime import date, datetime
+from configparser import ConfigParser
 import sys
 import threading
 import smbus
@@ -30,13 +31,11 @@ import station.air_quality as aiq
 import sqldb as dbHandler
 import station.sys_stats as sysStats
 
-# public variables (static values)
-# --
-# value for seconds between each measurement
-SECONDS = 15
-SYNC_TIME = 30    #3600 - one hour
-# value for particulate measurement, number how often loops are left out (8 = measurement every 2 mins)
-AIR_QUALITY_TIME = 8
+
+# SYSTEM SERVICE:
+# name: station.service (located in: /lib/systemd/system)
+# twinfile in /home/pi/weatherstation/sservice called station.service
+# check status: sudo systemctl status station.service
 
 # writing console output to console and logfile
 class LogWriter(object):
@@ -70,7 +69,7 @@ class handleMeasurement(object):
     # retrieving data
     def retrieveData(self):
         # creating/initializing next autorun
-        threading.Timer(SECONDS, handleMeasurement.retrieveData, [self]).start()
+        threading.Timer(self.MES_TIME, handleMeasurement.retrieveData, [self]).start()
         print(self.getTime(), "installed next autorun --> collecting data")
         self.PARTICULATE_MATTER_MES = self.PARTICULATE_MATTER_MES + 1
 
@@ -83,9 +82,9 @@ class handleMeasurement(object):
             raw_temperature = temperature[1]
             humidity = ais.getHumidity()
             pressure = ais.getPressure()
-            print(self.getTime(), "collected air_stats data successfully: temperature:", f_temperature, ", humidity:", humidity,", pressure:", pressure)
+            print(self.getTime(), "collected air_stats data successfully: temperature (°C):", f_temperature, ", humidity (%):", humidity,", pressure (hPa):", pressure)
             cpu_usage, ram_usage, cpu_temp = sysStats.getSysStats(self)
-            print(self.getTime(), "collected system data successfully: cpu-usage (percent):", cpu_usage, ", ram-usage (percent):", ram_usage, ", cpu-temperature (°C):", cpu_temp)
+            print(self.getTime(), "collected system data successfully: cpu-usage (%):", cpu_usage, ", ram-usage (%):", ram_usage, ", cpu-temperature (°C):", cpu_temp)
             
             # building sqlite command (previous version resulted in error [str max 3 values]) 
             # SQL changes type from string back to integer when pasting into db 
@@ -104,7 +103,7 @@ class handleMeasurement(object):
             print(self.getTime(), "something went wrong while collecting airstats data")
             traceback.print_exc()
 
-        if self.PARTICULATE_MATTER_MES == AIR_QUALITY_TIME:
+        if self.PARTICULATE_MATTER_MES == self.AIQ_TIME:
             try:
                 # import class (seperate self statement required)
                 airquality = aiq.AIR_QUALITY()
@@ -120,7 +119,7 @@ class handleMeasurement(object):
             except:
                 print(self.getTime(), "something went wrong while collecting airquality data")
                 traceback.print_exc()   
-            self.PARTICULATE_MATTER_MES = self.PARTICULATE_MATTER_MES = 0
+            self.PARTICULATE_MATTER_MES = 0
 
 
         dbHandler.closeDBConnection(self, dbConnection)
@@ -137,7 +136,7 @@ class dbUpload(object):
                 print(self.getTime(), "syncing the following database to ftp share: " + sfile)
                 leftToSync.remove(sfile)
                 uploadCMD = "STOR " + sfile
-                file = open("/home/pi/weatherstation/db/" + sfile, "rb")
+                file = open(self.baseFilePath + "db/" + sfile, "rb")
                 # uploading to ftp share
                 ftpConnection.storbinary(uploadCMD, file)
             # checking if all databases have been synced, if not --> rerun (throwed an error before [some db's were left out], reason unknown - this method prevents this failure)
@@ -167,7 +166,7 @@ class dbUpload(object):
         slocalFileList = set(localFileList)
         sremoteFileList = set(remoteFileList)
         # extracting unsynced files
-        toSync = (slocalFileList - sremoteFileList).union(sremoteFileList - slocalFileList)
+        toSync = (slocalFileList - sremoteFileList)
         #print(toSync)         
         # checking if length of localFileList
         if not toSync:
@@ -181,7 +180,10 @@ class dbUpload(object):
                 print(self.getTime(), "something went wrong - could not delete daily db")    
             
         else:
-            listtoSync = list(toSync)    
+            listtoSync = list(toSync) 
+            # adding daily db
+            if not self.dbCurName in listtoSync:
+                listtoSync.append(self.dbCurName)  
         # starting db syncing process
         dbUpload.syncMissing(self, listtoSync, ftpConnection)
 
@@ -198,7 +200,7 @@ class dbUpload(object):
     
     # initializes a ftp connection
     def getFTPConnection(self):
-        threading.Timer(SYNC_TIME, dbUpload.getFTPConnection, [self]).start()
+        threading.Timer(self.SYNC_TIME, dbUpload.getFTPConnection, [self]).start()
         if self.syncFinished == False:
             print(self.getTime(), "last sycning process hasn't been finished yet\n")
             return 
@@ -232,10 +234,17 @@ class Core(object):
         sys.stdout = LogWriter(sys.stdout, self.logFile)
 
     def __init__(self):
-        # saving ressources global (like public)
-        self.baseFilePath = "/home/pi/weatherstation/"
-        self.FTPServerIP = "192.168.8.3"
-        self.FTPshareLoc = "dietzmpenas-bll/databases/"
+        # saving ressources global (like public) // retrieving missing from config file
+        configImport = ConfigParser()
+        # os.getcwd() returns execution directory
+        configImport.read(os.getcwd() + "/setup/config.ini")
+        # importing config data
+        self.baseFilePath = configImport["DATABASE"]["baseFilePath"]
+        self.FTPServerIP = configImport["DATABASE"]["FTPServerIP"]
+        self.FTPshareLoc = configImport["DATABASE"]["FTPShareLoc"]
+        self.MES_TIME = int(configImport["CONFIGURATION"]["seconds"])
+        self.SYNC_TIME = int(configImport["CONFIGURATION"]["sync_time"])
+        self.AIQ_TIME = int(configImport["CONFIGURATION"]["air_quality_time"])
         self.syncFinished = True
         # initializing log
         self.writeLog()
