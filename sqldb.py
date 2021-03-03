@@ -6,10 +6,7 @@
 # python-v  | 3.5.3
 # -
 # file      | sqldb.py
-# -
-# USING FOLLOWING RESSOURCE(S):
-# -
-# https://appdividend.com/2020/10/14/how-to-create-sqlite-database-in-python/ 
+# - 
 # -
 #--------------------------------------
 
