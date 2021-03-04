@@ -8,9 +8,6 @@
 # file      | air_stats.py
 # -
 # USING FOLLOWING RESSOURCE(S):
-# -
-# Author : Matt Hawkins
-# Date   : 21/01/2018
 # - 
 # https://www.raspberrypi-spy.co.uk/
 # -

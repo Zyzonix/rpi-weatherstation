@@ -7,8 +7,6 @@
 # -
 # file      | sys_stats.py
 # -
-# USING FOLLOWING RESSOURCE(S):
-# - 
 # -
 #--------------------------------------
 import psutil

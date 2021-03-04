@@ -14,7 +14,6 @@ import struct
 import serial
 import time
 
-
 # access to values: station.air_quality.AIR_QUALITY().query()
 
 class AIR_QUALITY(object):
