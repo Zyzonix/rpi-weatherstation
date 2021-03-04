@@ -11,7 +11,6 @@
 # - 
 # -
 #--------------------------------------
-
 import psutil
 
 # retrieving system statistics
