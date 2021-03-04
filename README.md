@@ -70,4 +70,4 @@ $ sudo systemctl disable station.service
 ```
 ### About the project
 This software is part of a school project developed by Zyzonix. It's goal was the development of an executeable software, that can retrieve environment data, write it into databases and display the recorded data into graphs on a webserver. 
-(This project just contains the first and second part, the webserver won't be published here in this repository)
+(This project just contains the first and second part, the webserver won't be published here within this repository)
