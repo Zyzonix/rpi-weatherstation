@@ -12,7 +12,6 @@
 # https://appdividend.com/2020/10/14/how-to-create-sqlite-database-in-python/ 
 # -
 #--------------------------------------
-
 from datetime import date, datetime
 import os
 import sqlite3

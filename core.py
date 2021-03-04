@@ -6,7 +6,7 @@
 # python-v  | 3.5.3
 # -
 # file      | core.py
-# file-v    | 1.1 // implemented config file
+# file-v    | 1.2 // fixed some small bugs in the setup process // stable release
 #
 # USING FOLLOWING RESSOURCE(S):
 # 
@@ -147,7 +147,7 @@ class dbUpload(object):
             else:
                 self.syncFinished = True      
             # confirming that sync is finished       
-            print(self.getTime(), "syncing successfull - all databases have been synced\n")    
+            print(self.getTime(), "syncing successful - all databases have been synced\n")    
         except:
             print(self.getTime(), "something went wrong - was not able to sync missing databases\n")
             self.syncFinished = False
@@ -209,7 +209,7 @@ class dbUpload(object):
             ftpConnection = ftplib.FTP(self.FTPServerIP)
             # logs in into the ftp share
             ftpConnection.login(self.FTPuname, self.FTPpwd)
-            print(self.getTime(), "ftp connection successfull, welcomemsg: " + ftpConnection.getwelcome())
+            print(self.getTime(), "ftp connection successful, welcomemsg: " + ftpConnection.getwelcome())
             # starting sycing process
             self.syncFinished = False   
             dbUpload.getFTPContent(self, ftpConnection)

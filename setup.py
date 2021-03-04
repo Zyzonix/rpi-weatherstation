@@ -104,7 +104,7 @@ class setup(object):
             os.system("sudo cp " + os.getcwd() + "/setup/station.service /lib/systemd/system/")
             print("[INFO] installing system service")
         else:
-            print("[INFO] system service already installed propertly")    
+            print("[INFO] system service already installed properly")    
 
     def startService():
         if str(input("[INFO] start service now? (y/n) \n")) == "y":
