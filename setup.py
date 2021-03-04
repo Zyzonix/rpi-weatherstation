@@ -17,6 +17,7 @@ import sys
 from configparser import ConfigParser
 import traceback
 import getpass
+import importlib.util
 
 
 class setup(object):
@@ -27,6 +28,28 @@ class setup(object):
             return False
         else:
             print("[INFO] running with root permissions")  
+
+    def checkPackages():
+        packages = ["datetime", "configparser", "threading", "smbus", "sqlite3", "ftplib", "traceback", "os"]
+
+        for entry in packages:
+            spec = importlib.util.find_spec(entry)
+            if entry in sys.modules:
+                print("[INFO] " + entry + " already in sys.modules")
+            elif spec is not None:
+            # If you choose to perform the actual import ...
+                module = importlib.util.module_from_spec(spec)
+                sys.modules[entry] = module
+                spec.loader.exec_module(module)
+                print("[INFO] " + entry + " has been imported")
+            else:
+                print("[ERROR] can't find the "+ entry +" module")
+        for entry in packages:
+            try:
+                globals()[entry] = importlib.import_module(entry)
+            except:
+                print("[ERROR] something went wrong while importing packages (didn't find: " + entry + ")")
+
 
     def setValues(self):
         print("[INFO] please fill in the next questions, typing nothing will change nothing (preset values are being kept)\n")
@@ -77,9 +100,11 @@ class setup(object):
 
 
     def checkService():
-        if not os.path.exists("/lib/systemd/service/station.service"):
-            os.system("sudo cp setup/station.service /lib/systemd/service/station.service")
+        if not os.path.exists("/lib/systemd/system/station.service"):
+            os.system("sudo cp " + os.getcwd() + "/setup/station.service /lib/systemd/system/")
             print("[INFO] installing system service")
+        else:
+            print("[INFO] system service already installed propertly")    
 
     def startService():
         if str(input("[INFO] start service now? (y/n) \n")) == "y":
@@ -102,6 +127,7 @@ class setup(object):
         try:
             self.setValues()
             self.createFolders()
+            setup.checkPackages()
             setup.checkService() 
             setup.startService()
             setup.enableService() 
