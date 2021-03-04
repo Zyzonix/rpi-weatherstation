@@ -170,7 +170,7 @@ class dbUpload(object):
         #print(toSync)         
         # checking if length of localFileList
         if not toSync:
-            print(self.getTime(), "all past files are synced to ftp share - syncing daily db (" + self.dbCurName + ")")
+            print(self.getTime(), "all past files are already synced to ftp share - syncing daily db (" + self.dbCurName + ")")
             # adding daily db
             listtoSync = list(toSync)
             listtoSync.append(self.dbCurName)
@@ -208,7 +208,7 @@ class dbUpload(object):
         try: 
             ftpConnection = ftplib.FTP(self.FTPServerIP)
             # logs in into the ftp share
-            ftpConnection.login("rpi3abll", "rpi3abll")
+            ftpConnection.login(self.FTPuname, self.FTPpwd)
             print(self.getTime(), "ftp connection successfull, welcomemsg: " + ftpConnection.getwelcome())
             # starting sycing process
             self.syncFinished = False   
@@ -245,6 +245,8 @@ class Core(object):
         self.MES_TIME = int(configImport["CONFIGURATION"]["seconds"])
         self.SYNC_TIME = int(configImport["CONFIGURATION"]["sync_time"])
         self.AIQ_TIME = int(configImport["CONFIGURATION"]["air_quality_time"])
+        self.FTPuname = configImport["DATABASE"]["uname"]
+        self.FTPpwd = configImport["DATABASE"]["pwd"]
         self.syncFinished = True
         # initializing log
         self.writeLog()

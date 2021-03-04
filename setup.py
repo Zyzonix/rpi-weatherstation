@@ -16,7 +16,7 @@ import os
 import sys
 from configparser import ConfigParser
 import traceback
-import shutil
+import getpass
 
 
 class setup(object):
@@ -35,6 +35,8 @@ class setup(object):
         air_quality_time = str(input("Enter the duration between each run of the air_quality measurement: (preset: 8 loops are being skipped (8*15 = 2 min))\n"))
         prebaseFilePath = str(input("Enter the home directory: (preset: /home/pi/rpi-weatherstation | typing nothing will parse current directory)\n"))
         FTPShareIP = str(input("Enter the IP of your FTPShare: (preset: 192.168.8.3)\n"))
+        FTPuname = str(input("Please enter the username for your FTP Share:\n"))
+        FTPpwd = str(getpass.getpass("Password for FTP Share: (type nothing if no password is required) \n"))
         FTPShareLoc = str(input("Enter the home database directory of your FTPShare:\n"))
         cp = ConfigParser()
         cp.read(os.getcwd() + "/setup/config.ini")
@@ -54,6 +56,12 @@ class setup(object):
             self.baseFilePath = db["basefilepath"]
         if FTPShareIP != "":    
             db["FTPShareIP"] = FTPShareIP
+        if FTPuname != "":
+            db["uname"] = FTPuname
+        else:
+            print("[ERROR] Please enter a username for the FTP Share")    
+        if FTPpwd != "":
+            db["pwd"] = FTPpwd       
         if FTPShareLoc != "":
             db["FTPShareLoc"] = FTPShareLoc
         with open(os.getcwd() + "/setup/config.ini", "w") as configfile:
@@ -70,7 +78,7 @@ class setup(object):
 
     def checkService():
         if not os.path.exists("/lib/systemd/service/station.service"):
-            os.system("sudo cp setup/station.service /lib/systemd/service/")
+            os.system("sudo cp setup/station.service /lib/systemd/service/station.service")
             print("[INFO] installing system service")
 
     def startService():
