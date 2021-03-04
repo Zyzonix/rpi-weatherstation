@@ -56,6 +56,11 @@ View the status of the service:
 ```
 $ sudo systemctl status station.service
 ```
+or use the contained bash file (permission granting required):
+```
+$ sudo chmod +x view_status.sh
+$ ./view_status.sh
+```
 Stop the service
 ```
 $ sudo systemctl stop station.service
