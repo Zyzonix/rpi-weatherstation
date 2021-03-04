@@ -11,13 +11,13 @@ The software can collect the following data:
 - Pressure
 - Concentration of dust particles 
 
-#### Table of content
+### Table of content
 * [Requirements](#requirements)
 * [Installation](#installation)
 * [Controlling](#controlling)
 * [About the project](#about-the-project)
 
-#### Requirements:
+### Requirements:
 * Python 3.5.3 installed
 * Sensors:
   - Bosch BME280 
@@ -28,7 +28,7 @@ The software can collect the following data:
 * Root permissions
 * access to a FTP compatible networkshare (for database storing)
 
-#### Installation:
+### Installation:
 **Please note that all python commands must be run in Python3!**
 
 Firstly clone this github repository to your device using this command:
@@ -42,12 +42,12 @@ $ sudo python3 setup.py
 ```
 Fill in the questions, check the console output of the setup script if there are no errors displayed, then the setup process was successful and the weather stations software is installed properly.
 
-#### Controlling
+### Controlling
 If you wish to proceed a test run type
 ```
 $ python3 core.py
 ```
-##### If you used the tutorial above to set up the software, then system services are used to remote control it:
+###### If you used the tutorial above to set up the software, then system services are used to remote control it:
 Start the service:
 ```
 $ sudo systemctl start station.service  
@@ -68,6 +68,6 @@ If you wish to disable autostart type:
 ```
 $ sudo systemctl disable station.service
 ```
-#### About the project
+### About the project
 This software is part of a school project developed by Zyzonix. It's goal was the development of an executeable software, that can retrieve environment data, write it into databases and display the recorded data into graphs on a webserver. 
 (This project just contains the first and second part, the webserver won't be published here in this repository)
