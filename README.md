@@ -1,7 +1,7 @@
 # Raspberry Pi Weatherstation
 
-[![Version](https://img.shields.io/badge/Version-1.1%20-orange)]() 
-[![Python-Version](https://img.shields.io/badge/Python%203.5.3-blue)]()
+[![Version](https://img.shields.io/badge/Version-1.2%20-orange)]() 
+[![Python-Version](https://img.shields.io/badge/Python-3.5.3-blue)]()
 [![last updated](https://img.shields.io/badge/last%20updated-04/03/2021-9cf)]()
 
 Weather station software developed in Python3.5 for BME280 and SDS011 sensors.
@@ -31,7 +31,7 @@ The software can collect the following data:
 ### Installation:
 **Please note that all python commands must be run in Python3!**
 
-Firstly clone this github repository to your device using this command:
+Firstly clone this github repository to your device using git and this command:
 ```
 $ git clone https://github.com/Zyzonix/rpi-weatherstation.git
 $ cd rpi-weatherstation/
