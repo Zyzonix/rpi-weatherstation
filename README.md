@@ -11,6 +11,8 @@ The software can collect the following data:
 - Pressure
 - Concentration of dust particles 
 
+Please note that the whole project is licensed under the GNU General Public License.
+
 ### Table of content
 * [Requirements](#requirements)
 * [Installation](#installation)
