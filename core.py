@@ -6,7 +6,7 @@
 # python-v  | 3.5.3
 # -
 # file      | core.py
-# file-v    | 1.2 // fixed some small bugs in the setup process // stable release
+# file-v    | 1.3 // inserted new sync validation // stable release / revision 1
 #
 # USING FOLLOWING RESSOURCE(S):
 # 
@@ -54,17 +54,13 @@ class LogWriter(object):
 
 
 
-# data import / measurement / saving data
+# data import / measurement / saving 
 class handleMeasurement(object):
 
     # getting db formatted date/time
     def getTime(self):
         curTime = "" + str(datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
         return curTime
-
-    # storing to SQLite database
-    def storeData(self, dbConnection):
-        print(s)
 
     # retrieving data
     def retrieveData(self):
@@ -133,12 +129,33 @@ class dbUpload(object):
         leftToSync = mfileList
         try:
             for sfile in leftToSync:
-                print(self.getTime(), "syncing the following database to ftp share: " + sfile)
-                leftToSync.remove(sfile)
-                uploadCMD = "STOR " + sfile
-                file = open(self.baseFilePath + "db/" + sfile, "rb")
-                # uploading to ftp share
-                ftpConnection.storbinary(uploadCMD, file)
+                # checking for daily file
+                if sfile == str(date.today()) + ".db":
+                    print(self.getTime(), "syncing daily db to daily-folder")
+                    leftToSync.remove(sfile)
+                    ftpConnection.cwd("daily/")
+                    try:
+                        for file in ftpConnection.nlst():
+                            ftpConnection.delete(file)
+                    except:
+                        pass
+                    uploadCMD = "STOR " + sfile
+                    file = open(self.baseFilePath + "db/" + sfile, "rb")
+                    # uploading to ftp share
+                    ftpConnection.storbinary(uploadCMD, file)
+                    ftpConnection.cwd("..")
+
+                else:
+                    print(self.getTime(), "syncing the following database to ftp share: " + sfile)
+                    leftToSync.remove(sfile)
+                    try:
+                        ftpConnection.delete(sfile)
+                    except:
+                        pass
+                    uploadCMD = "STOR " + sfile
+                    file = open(self.baseFilePath + "db/" + sfile, "rb")
+                    # uploading to ftp share
+                    ftpConnection.storbinary(uploadCMD, file)
             # checking if all databases have been synced, if not --> rerun (throwed an error before [some db's were left out], reason unknown - this method prevents this failure)
             if len(leftToSync) != 0:
                 self.syncFinished = False
@@ -157,35 +174,36 @@ class dbUpload(object):
 
     # checking if ftp db storage equals local db storage
     def checkContent(self, rFileList, ftpConnection):
-        # retrieving local db storage
+        # retrieving local db storage + filesizes
         localFileList = []
-        remoteFileList = rFileList
+        localFileSizeList = {}
         for file in os.listdir(self.baseFilePath + "db/"):
             localFileList.append(file)
-        # make lists compareable
-        slocalFileList = set(localFileList)
-        sremoteFileList = set(remoteFileList)
-        # extracting unsynced files
-        toSync = (slocalFileList - sremoteFileList)
-        #print(toSync)         
-        # checking if length of localFileList
-        if not toSync:
-            print(self.getTime(), "all past files are already synced to ftp share - syncing daily db (" + self.dbCurName + ")")
-            # adding daily db
-            listtoSync = list(toSync)
-            listtoSync.append(self.dbCurName)
+            localFileSizeList[file] = os.path.getsize(self.baseFilePath + "db/" + file)
+        # retrieving remote db storage + filesizes
+        remoteFileList = rFileList
+        remoteFileSizeList = {}
+        ftpConnection.voidcmd('TYPE I')
+        for file in remoteFileList:
             try:
-                ftpConnection.delete(self.dbCurName)
+                remoteFileSizeList[file] = ftpConnection.size(file)
+            # preventing error --> no size of daily-folder
             except:
-                print(self.getTime(), "something went wrong - could not delete daily db")    
-            
-        else:
-            listtoSync = list(toSync) 
-            # adding daily db
-            if not self.dbCurName in listtoSync:
-                listtoSync.append(self.dbCurName)  
-        # starting db syncing process
-        dbUpload.syncMissing(self, listtoSync, ftpConnection)
+                pass
+
+        # file sync list
+        toSync = []
+
+        # comparing filesizes on local and remote storage
+        for file in localFileSizeList.keys():
+            # case 1: file doesn't exist on ftp share
+            if not file in remoteFileSizeList.keys():
+                toSync.append(file)
+            # case 2: file exists in both storages
+            elif not remoteFileSizeList[file] == localFileSizeList[file]:
+                toSync.append(file)
+        # returns filelist
+        return toSync
 
     # getting available files
     def getFTPContent(self, ftpConnection):
@@ -196,15 +214,14 @@ class dbUpload(object):
         for filename in ftpConnection.nlst():
             existingFiles.append(filename)
         print(self.getTime(), "retrieved existing files of '" + self.FTPshareLoc + "' (number of existing files: " + str(len(existingFiles)) + ")") 
-        dbUpload.checkContent(self, existingFiles, ftpConnection)
+        return existingFiles
+        #dbUpload.checkContent(self, existingFiles, ftpConnection)
     
     # initializes a ftp connection
     def getFTPConnection(self):
-        threading.Timer(self.SYNC_TIME, dbUpload.getFTPConnection, [self]).start()
         if self.syncFinished == False:
-            print(self.getTime(), "last sycning process hasn't been finished yet\n")
-            return 
-        print(self.getTime(), "scheduled next autorun for syncing databases to ftp share")
+            print(self.getTime(), "last syncing process hasn't been finished yet\n")
+            return False, 0
         try: 
             ftpConnection = ftplib.FTP(self.FTPServerIP)
             # logs in into the ftp share
@@ -212,12 +229,23 @@ class dbUpload(object):
             print(self.getTime(), "ftp connection successful, welcomemsg: " + ftpConnection.getwelcome())
             # starting sycing process
             self.syncFinished = False   
-            dbUpload.getFTPContent(self, ftpConnection)
+            return True, ftpConnection
         except:
             print(self.getTime(), "something went wrong - was not able to initialize a ftp connection to: " + self.FTPServerIP + " - server may be offline\n")
+            return False, 0 
             # prints stack trace
             #traceback.print_exc()   
     
+    # validates all databases on ftp shares (preventing corrupted dbs)
+    # sync handler
+    def handleSync(self):
+        threading.Timer(self.SYNC_TIME, dbUpload.handleSync, [self]).start()
+        print(self.getTime(), "scheduled next autorun for syncing databases to ftp share")
+        connectionEstablished, ftpConnection = dbUpload.getFTPConnection(self)
+        if connectionEstablished:
+            existingFiles = dbUpload.getFTPContent(self, ftpConnection)
+            leftToSync = dbUpload.checkContent(self, existingFiles, ftpConnection)
+            dbUpload.syncMissing(self, leftToSync, ftpConnection)
 
 # core class - sensor setup, data controlling, database intialization/setup, threading setup
 class Core(object):
@@ -256,7 +284,7 @@ class Core(object):
         # running measurement
         handleMeasurement.retrieveData(self)
         # initializing db sync with 5 seconds delay (prevents corrupted databases through double access)
-        threading.Timer(5, dbUpload.getFTPConnection, [self]).start()
+        threading.Timer(5, dbUpload.handleSync, [self]).start()
 
     
 
