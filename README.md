@@ -1,8 +1,8 @@
 # Raspberry Pi Weatherstation
 
-[![Version](https://img.shields.io/badge/Version-1.2%20-orange)]() 
+[![Version](https://img.shields.io/badge/Version-1.2%20-%20-rev%201-orange)]() 
 [![Python-Version](https://img.shields.io/badge/Python-3.5.3-blue)]()
-[![last updated](https://img.shields.io/badge/last%20updated-04/03/2021-9cf)]()
+[![last updated](https://img.shields.io/badge/last%20updated-11/06/2021-9cf)]()
 
 Weather station software developed in Python3.5 for BME280 and SDS011 sensors.
 The software can collect the following data: 
