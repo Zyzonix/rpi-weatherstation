@@ -1,6 +1,6 @@
 # Raspberry Pi Weatherstation
 
-[![Version](https://img.shields.io/badge/Version-1.2%20-%20-rev%201-orange)]() 
+[![Version](https://img.shields.io/badge/Version-1.2%20|%20rev%201-orange)]() 
 [![Python-Version](https://img.shields.io/badge/Python-3.5.3-blue)]()
 [![last updated](https://img.shields.io/badge/last%20updated-11/06/2021-9cf)]()
 
