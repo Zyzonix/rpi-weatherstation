@@ -1,8 +1,8 @@
 # Raspberry Pi Weatherstation
 
-[![Version](https://img.shields.io/badge/Version-1.2%20|%20rev%201-orange)]() 
+[![Version](https://img.shields.io/badge/Version-1.3-orange)]() 
 [![Python-Version](https://img.shields.io/badge/Python-3.5.3-blue)]()
-[![last updated](https://img.shields.io/badge/last%20updated-11/06/2021-9cf)]()
+[![last updated](https://img.shields.io/badge/last%20updated-18/07/2021-9cf)]()
 
 Weather station software developed in Python3.5 for BME280 and SDS011 sensors.
 The software can collect the following data: 
@@ -39,8 +39,13 @@ $ git clone https://github.com/Zyzonix/rpi-weatherstation.git
 $ cd rpi-weatherstation/
 ```
 Run the setup script as root:
+##### Please notice, that all commands are also accessible through make.
 ```
 $ sudo python3 setup.py
+```
+or
+```
+$ sudo make setup
 ```
 Fill in the questions, check the console output of the setup script if there are no errors displayed, then the setup process was successful and the weather stations software is installed properly.
 
@@ -49,32 +54,48 @@ If you wish to proceed a test run type
 ```
 $ python3 core.py
 ```
-###### If you used the tutorial above to set up the software, then system services are used to remote control it:
+##### If you used the tutorial above to set up the software, then system services are used to remote control it:
 Start the service:
 ```
 $ sudo systemctl start station.service  
+```
+###### or
+```
+$ sudo make start
 ```
 View the status of the service:
 ```
 $ sudo systemctl status station.service
 ```
-or use the contained bash file (permission granting required):
+###### or
 ```
-$ sudo chmod +x view_status.sh
-$ ./view_status.sh
+$ sudo make check
 ```
 Stop the service:
 ```
 $ sudo systemctl stop station.service
 ```
+###### or
+```
+$ sudo make stop
+```
 You can enable autostart at boot with:
 ```
 $ sudo systemctl enable station.service
+```
+###### or
+```
+$ sudo make enable
 ```
 If you wish to disable autostart type:
 ```
 $ sudo systemctl disable station.service
 ```
+or
+```
+$ sudo make disable
+```
+
 ### About the project
 This software is part of a school project developed by Zyzonix. It's goal was the development of an executeable software, that can retrieve environment data, write it into databases and display the recorded data into graphs on a webserver. 
 (This project just contains the first and second part, the webserver won't be published here within this repository)
