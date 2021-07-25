@@ -4,7 +4,7 @@
 [![Python-Version](https://img.shields.io/badge/Python-3.5.3-blue)]()
 [![last updated](https://img.shields.io/badge/last%20updated-25/07/2021-9cf)]()
 
-Weather station software developed in Python3.5 for BME280 and SDS011 sensors.
+Weatherstationsoftware developed in Python3.5 for BME280 and SDS011 sensors.
 The software can collect the following data: 
 - Temperature
 - Humidity
@@ -97,5 +97,5 @@ $ sudo make disable
 ```
 
 ### About the project
-This software is part of a school project developed by Zyzonix. It's goal was the development of an executeable software, that can retrieve environment data, write it into databases and display the recorded data into graphs on a webserver. 
-(This project just contains the first and second part, the webserver won't be published here within this repository)
+This software is part of a school project developed by Zyzonix. It's goal was the development of an executeable software, that can retrieve environmental data, write these datasets into databases and display the stored data into graphs on a webserver. 
+(This project just contains the first and second part, the webserver won't be published here within this repository, it can be found under Zyzonix/rpi-weatherstation-web)
