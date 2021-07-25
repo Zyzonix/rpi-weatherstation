@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/Version-1.3-orange)]() 
 [![Python-Version](https://img.shields.io/badge/Python-3.5.3-blue)]()
-[![last updated](https://img.shields.io/badge/last%20updated-18/07/2021-9cf)]()
+[![last updated](https://img.shields.io/badge/last%20updated-25/07/2021-9cf)]()
 
 Weather station software developed in Python3.5 for BME280 and SDS011 sensors.
 The software can collect the following data: 
