@@ -3,11 +3,11 @@
 # published by ZyzonixDevelopments 
 # -
 # date      | 13/04/2021
-# type		  | Makefile
+# type      | Makefile
 # -
 # file      | Makefile
 # project   | rpi-weatherstation
-# version	  | 1.2
+# version   | 1.2
 # 
 all: help
 
@@ -62,15 +62,15 @@ check:
 
 # printing all commands of this file
 help:
-      @echo ""
-      @echo "------------------------- [rpi-weatherstation - HELP] -------------------------"
-      @echo ""
-      @echo "- sudo make install................starts the setup script"
-      @echo "- sudo make uninstall..............removes the software from this device"
-      @echo "- sudo make start..................starts the systemservice"
-      @echo "- sudo make stop...................stops the systemservice"
-      @echo "- sudo make enable.................installs the systemservice"
-      @echo "- sudo make disable................uninstalls the systemservice"
-      @echo "- sudo make check..................shows the status of the station-systemservice"
-      @echo "----------------------------------------------------------------------------------"
-      @echo ""
+        @echo ""
+        @echo "------------------------- [rpi-weatherstation - HELP] -------------------------"
+        @echo ""
+        @echo "- sudo make install................starts the setup script"
+        @echo "- sudo make uninstall..............removes the software from this device"
+        @echo "- sudo make start..................starts the systemservice"
+        @echo "- sudo make stop...................stops the systemservice"
+        @echo "- sudo make enable.................installs the systemservice"
+        @echo "- sudo make disable................uninstalls the systemservice"
+        @echo "- sudo make check..................shows the status of the station-systemservice"
+        @echo "----------------------------------------------------------------------------------"
+        @echo ""
