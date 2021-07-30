@@ -104,7 +104,13 @@ class setup(object):
             os.system("sudo cp " + os.getcwd() + "/setup/station.service /lib/systemd/system/")
             print("[INFO] installing system service")
         else:
-            print("[INFO] system service already installed properly")    
+            print("[INFO] system service already installed properly") 
+            
+        if not os.path.exists("/lib/systemd/system/livedataProvider.service"):
+            os.system("sudo cp " + os.getcwd() + "/setup/livedataProvider.service /lib/systemd/system/")
+            print("[INFO] installing livedata service")
+        else:
+            print("[INFO] livedata service already installed properly")  
 
     def startService():
         if str(input("[INFO] start service now? (y/n) \n")) == "y":
@@ -135,11 +141,6 @@ class setup(object):
             traceback.print_exc()
         print("\n----------------\nSETUP COMPLETED\n----------------\n")    
         
-
-
-
-
-
-
+        
 if __name__ == "__main__":
     setup()   
