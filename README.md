@@ -1,4 +1,4 @@
-# Raspberry Pi Weatherstation
+# Raspberry Pi weather station
 
 [![Version](https://img.shields.io/badge/Version-2.0-orange)]() 
 [![Python-Version](https://img.shields.io/badge/Python-3.7.3-blue)]()
@@ -15,7 +15,7 @@
 * [About the project](#about-the-project)
 
 ### The project
-Weatherstationsoftware developed in Python3.5+ for BME280 and SDS011 sensors.
+Weather station software developed in Python3.5+ for BME280 and SDS011 sensors.
 The software can collect the following data: 
 - Temperature
 - Humidity
@@ -60,7 +60,7 @@ or
 ```
 $ sudo make setup
 ```
-Fill in the questions, check the console output of the setup script if there are no errors displayed, then the setup process was successful and the weatherstationsoftware is installed properly.
+Fill in the questions, check the console output of the setup script if there are no errors displayed, then the setup process was successful and the weather station software is installed properly.
 
 ### Controlling
 Initializing a testrun:
@@ -76,7 +76,7 @@ Command | Description
 ``` $ sudo make install ``` | Installs the core-software aswell as the livedataProvider and it's services
 ``` $ sudo make uninstall ``` | Removes the whole software including all services from the device 
 
-##### Weatherstation-commands:
+##### Weather station commands:
 Command | Description
 --- | ---
 ``` $ sudo make start-station ``` | Starts the core-software (not required if the service is enabled)
@@ -85,7 +85,7 @@ Command | Description
 ``` $ sudo make enable-station ``` | Enables autostart at boot
 ``` $ sudo make disable-station ``` | Disables autostart at boot
 
-##### LivedataProvider-commands:
+##### LivedataProvider commands:
 Command | Description
 --- | ---
 ``` $ sudo make start-livedata ``` | Start the livedataProvider-service (not required if the service is enabled)
@@ -98,4 +98,4 @@ Command | Description
 This software is part of a school project developed by Zyzonix. It's goal was the development of an executeable software, that can retrieve environmental data, write these datasets into databases and display the stored data into graphs on a webserver. 
 (This repository only contains the first part, the webserver (second part) won't be published here within this repository, it can be found under Zyzonix/rpi-weatherstation-web)
 
-README-version: 1.5
+README-version: 1.6
