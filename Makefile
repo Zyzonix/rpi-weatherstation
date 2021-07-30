@@ -25,6 +25,7 @@ uninstall:
 	make stop
 	make disable
 	sudo rm /lib/systemd/system/station.service
+	sudo rm /lib/systemd/system/livedataProvider.service
 	sudo rm -rf $(CURDIR)
 
 # starting systemd-service
