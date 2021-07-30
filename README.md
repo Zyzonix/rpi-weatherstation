@@ -33,7 +33,7 @@ Please note that the whole project is licensed under the GNU General Public Lice
 * Sensors:
   - Bosch BME280 
   - Nova PM Sensor SDS011
-* Raspberry Pi with Raspberry Pi OS (Desktop/Lite)(Linux) installed 
+* Raspberry Pi with Raspberry Pi OS (Desktop/Lite v.10+ [Buster])(Linux) installed 
   - it doesn't matter which Pi from the Pi-family it actually is
   - the device just needs one USB port and a GPIO
   - (developed on: Raspberry Pi 3A+)
@@ -98,4 +98,4 @@ Command | Description
 This software is part of a school project developed by Zyzonix. It's goal was the development of an executeable software, that can retrieve environmental data, write these datasets into databases and display the stored data into graphs on a webserver. 
 (This repository only contains the first part, the webserver (second part) won't be published here within this repository, it can be found under Zyzonix/rpi-weatherstation-web)
 
-README-version: 1.2
+README-version: 1.4
