@@ -89,7 +89,7 @@ Command | Description
 Command | Description
 --- | ---
 ``` $ sudo make start-livedata ``` | Start the livedataProvider-service (not required if the service is enabled)
-``` $ sudo make check-livedata ``` / ``` $ sudo make check-livedata ``` | Shows the status of the livedata-Server
+``` $ sudo make check-livedata ``` / ``` $ sudo make status-livedata ``` | Shows the status of the livedata-Server
 ``` $ sudo make stop-livedata ``` | Stops the livedataProvider-service
 ``` $ sudo make enable-livedata ``` | Enables autostart at boot
 ``` $ sudo make disable-livedata ``` | Disables autostart at boot
@@ -98,4 +98,4 @@ Command | Description
 This software is part of a school project developed by Zyzonix. It's goal was the development of an executeable software, that can retrieve environmental data, write these datasets into databases and display the stored data into graphs on a webserver. 
 (This repository only contains the first part, the webserver (second part) won't be published here within this repository, it can be found under Zyzonix/rpi-weatherstation-web)
 
-README-version: 1.4
+README-version: 1.5
