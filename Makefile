@@ -7,7 +7,7 @@
 # -
 # file      | Makefile
 # project   | rpi-weatherstation
-# version   | 3.1.1
+# version   | 3.1.2
 # 
 all: help
 
@@ -107,24 +107,24 @@ livedata-check:
 # printing all commands of this file
 help:
 	@echo ""
-	@echo " |---------------------------- [rpi-weatherstation - HELP] ----------------------------|"
-	@echo " |										      |"
-	@echo " |------------------------------------ [General] --------------------------------------|"
-	@echo " |- sudo make install................starts the setup script			      |"
-	@echo " |- sudo make uninstall..............removes the software from this device	      |"
-	@echo " |										      |"
-	@echo " |--------------------------------- [weatherstation] ----------------------------------|"
-	@echo "	|- sudo make start-station..........starts the system service		      	      |"
-	@echo " |- sudo make stop-station...........stops the system service		      	      |"
-	@echo " |- sudo make enable-station.........installs the system service		      	      |"
-	@echo " |- sudo make disable-station........uninstalls the system service		      |"
-	@echo " |- sudo make station-check..........shows the status of the station system service    |"
-	@echo " |										      |"		
-	@echo " |-------------------------------- [livedataProvider] ---------------------------------|"
-	@echo " |- sudo make start-livedata.........starts the livedata service                       |"
-	@echo " |- sudo make stop-livedata..........stops the livedata service                        |"
-	@echo " |- sudo make enable-livedata........installs the livedata service                     |"	
-	@echo " |- sudo make disable-livedata.......uninstalls the livedata service		      |"
-	@echo " |- sudo make livedata-check.........shows the status of the livedata system service   |"
-	@echo " |-------------------------------------------------------------------------------------|"
+	@echo "---------------------------- [rpi-weatherstation - HELP] ----------------------------"
+	@echo ""
+	@echo "------------------------------------ [General] --------------------------------------"
+	@echo "- sudo make install................starts the setup script"
+	@echo "- sudo make uninstall..............removes the software from this device"
+	@echo ""
+	@echo "--------------------------------- [weatherstation] ----------------------------------"
+	@echo "- sudo make start-station..........starts the system service"
+	@echo "- sudo make stop-station...........stops the system service"
+	@echo "- sudo make enable-station.........installs the system service"
+	@echo "- sudo make disable-station........uninstalls the system service"
+	@echo "- sudo make station-check..........shows the status of the station system service"
+	@echo ""	
+	@echo "-------------------------------- [livedataProvider] ---------------------------------"
+	@echo "- sudo make start-livedata.........starts the livedata service"
+	@echo "- sudo make stop-livedata..........stops the livedata service"
+	@echo "- sudo make enable-livedata........installs the livedata service"	
+	@echo "- sudo make disable-livedata.......uninstalls the livedata service"
+	@echo "- sudo make livedata-check.........shows the status of the livedata system service"
+	@echo "-------------------------------------------------------------------------------------"
 	@echo ""
