@@ -6,7 +6,7 @@
 # python-v  | 3.5.3
 # -
 # file      | setup.py
-# file-v    | 1.0 // first stable public release of setup
+# file-v    | 1.1 // rework of first stable release, implementation of livedataProvider-setup
 #
 # Ressources:
 # https://tutswiki.com/read-write-config-files-in-python/
@@ -53,18 +53,18 @@ class setup(object):
 
     def setValues(self):
         print("[INFO] please fill in the next questions, typing nothing will change nothing (preset values are being kept)\n")
-        sec = str(input("Enter the duration between each run: (preset: 15 sec)\n"))
-        sync_time = str(input("Enter the duration between each serversychronisation: (preset: 3600 sec / 1h)\n"))
-        air_quality_time = str(input("Enter the duration between each run of the air_quality measurement: (preset: 8 loops are being skipped (8*15 = 2 min))\n"))
-        prebaseFilePath = str(input("Enter the home directory: (preset: /home/pi/rpi-weatherstation | typing nothing will parse current directory)\n"))
-        FTPShareIP = str(input("Enter the IP of your FTPShare: (preset: 192.168.8.3)\n"))
-        FTPuname = str(input("Please enter the username for your FTP Share:\n"))
-        FTPpwd = str(getpass.getpass("Password for FTP Share: (type nothing if no password is required) \n"))
-        FTPShareLoc = str(input("Enter the home database directory of your FTPShare:\n"))
+        sec = str(input("Please enter the duration between each run: (preset: 15 sec)\n"))
+        sync_time = str(input("Please enter the duration between each serversychronisation: (preset: 3600 sec / 1h)\n"))
+        air_quality_time = str(input("Please enter the duration between each run of the air_quality measurement: (preset: 8 loops are being skipped (8*15 = 2 min))\n"))
+        prebaseFilePath = str(input("Please enter the home directory: (preset: " + os.getcwd() + "/rpi-weatherstation | typing nothing will parse current directory)\n"))
+        FTPShareIP = str(input("Please enter the IP of your FTPShare: (preset: 192.168.8.3)\n"))
+        FTPuname = str(input("Please enter the username for your FTP Share: (leave empty if no username is required\n"))
+        FTPpwd = str(getpass.getpass("Password for FTP Share [letters hidden]: (type nothing if no password is required) \n"))
+        FTPShareLoc = str(input("Please enter the home database directory of your FTPShare:\n"))
         cp = ConfigParser()
         cp.read(os.getcwd() + "/setup/config.ini")
         conf = cp["CONFIGURATION"]
-        # the following part could also be solved more elegant...
+        # the following part could also be solved more elegant/dynamic...
         if sec != "":
             conf["seconds"] = sec
         if sync_time != "":
@@ -80,9 +80,7 @@ class setup(object):
         if FTPShareIP != "":    
             db["FTPShareIP"] = FTPShareIP
         if FTPuname != "":
-            db["uname"] = FTPuname
-        else:
-            print("[ERROR] Please enter a username for the FTP Share")    
+            db["uname"] = FTPuname  
         if FTPpwd != "":
             db["pwd"] = FTPpwd       
         if FTPShareLoc != "":
@@ -138,6 +136,7 @@ class setup(object):
             setup.startService()
             setup.enableService() 
         except:
+            print("\n----------------\nsomething went wrong - please retry! Stacktrace:\n----------------\n")    
             traceback.print_exc()
         print("\n----------------\nSETUP COMPLETED\n----------------\n")    
         
