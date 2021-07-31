@@ -7,10 +7,13 @@
 # -
 # file      | Makefile
 # project   | rpi-weatherstation
-# version   | 2.1
+# version   | 2.5
 # 
 all: help
 
+# WEATHER STATION:
+
+# initializing setup --> fw. to python script
 install:
 	@echo "installing rpi-weatherstation"
 	@echo ""
@@ -26,36 +29,40 @@ uninstall:
 	make disable
 	sudo rm /lib/systemd/system/station.service
 	sudo rm /lib/systemd/system/livedataProvider.service
-	sudo rm -rf $(CURDIR)
+	# removing current dir --> pwd
+	sudo rm -rf $(pwd)
+	@echo ""
+	@echo "uninstallation of rpi-weatherstation finished"
+	@echo ""
 
-# starting systemd-service
+# starting station service
 start-station:
-	@echo "starting system service"
+	@echo "starting weather station service"
 	@echo
 	sudo systemctl start station.service
 
-# stopping systemd-service
+# stopping station service
 stop-station:	
-	@echo "stopping system service"
+	@echo "stopping weather station service"
 	@echo ""
 	sudo systemctl stop station.service
 
 # installing service
 enable-station:
-	@echo "installing system service"
+	@echo "installing weather station service"
 	@echo ""
 	sudo systemctl enable station.service
 
 # uninstalling service
 disable-station:
-	@echo "uninstalling system service"
+	@echo "uninstalling weather station service"
 	@echo ""
 	sudo systemctl disable station.service
 
 station-status: check-station
 # check status of service
 check-station: 
-	@echo "checking status"
+	@echo "checking weather station status"
 	@echo ""
 	@echo "the following error is due to the command - don't worry"
 	@echo ""
@@ -63,34 +70,34 @@ check-station:
 
 # LIVEDATA SERVICE:
 
-# starting livedataservice
+# starting livedata service
 start-livedata:
-	@echo "starting system service"
+	@echo "starting livedataProvider service"
 	@echo
 	sudo systemctl start livedataProvider.service
 
-# stopping livedataservice
+# stopping livedata service
 stop-livedata:	
-	@echo "stopping system service"
+	@echo "stopping livedataProvider service"
 	@echo ""
 	sudo systemctl stop livedataProvider.service
 
-# installing livedataservice
+# installing livedata service
 enable-livedata:
-	@echo "installing system service"
+	@echo "installing livedataProvider service"
 	@echo ""
 	sudo systemctl enable livedataProvider.service
 
-# uninstalling livedataservice
+# uninstalling livedata service
 disable-livedata:
-	@echo "uninstalling system service"
+	@echo "uninstalling livedataProvider service"
 	@echo ""
 	sudo systemctl disable livedataProvider.service
 
 station-livedata: check-livedata
-# check status of livedataservice
+# check status of livedata service
 check-livedata: 
-	@echo "checking status"
+	@echo "checking livedataProvider status"
 	@echo ""
 	@echo "the following error is due to the command - don't worry"
 	@echo ""
@@ -104,16 +111,18 @@ help:
 	@echo ""
 	@echo "- sudo make install................starts the setup script"
 	@echo "- sudo make uninstall..............removes the software from this device"
-	@echo "- sudo make start-station..........starts the systemservice"
-	@echo "- sudo make stop-station...........stops the systemservice"
-	@echo "- sudo make enable-station.........installs the systemservice"
-	@echo "- sudo make disable-station........uninstalls the systemservice"
-	@echo "- sudo make check-station..........shows the status of the station-systemservice"
+	@echo "- sudo make start-station..........starts the system service"
+	@echo "- sudo make stop-station...........stops the system service"
+	@echo "- sudo make enable-station.........installs the system service"
+	@echo "- sudo make disable-station........uninstalls the system service"
+	@echo "- sudo make check-station..........shows the status of the station system service"
+	@echo ""
 	@echo "-------------------------- [livedataProvider - HELP] --------------------------"
-	@echo "- sudo make start-livedata.........starts the livedataservice"
-	@echo "- sudo make stop-livedata..........stops the livedataservice"
-	@echo "- sudo make enable-livedata........installs the livedataservice"
-	@echo "- sudo make disable-livedata.......uninstalls the livedataservice"
-	@echo "- sudo make check-livedata.........shows the status of the livedata-systemservice"
+	@echo ""
+	@echo "- sudo make start-livedata.........starts the livedata service"
+	@echo "- sudo make stop-livedata..........stops the livedata service"
+	@echo "- sudo make enable-livedata........installs the livedata service"
+	@echo "- sudo make disable-livedata.......uninstalls the livedata service"
+	@echo "- sudo make check-livedata.........shows the status of the livedata system service"
 	@echo "---------------------------------------------------------------------------------"
 	@echo ""
