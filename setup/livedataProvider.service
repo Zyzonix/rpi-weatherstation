@@ -3,7 +3,7 @@ Description=Provider for weatherstation livedata
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/pi/rpi-weatherstation/livedataProvider.py
+ExecStart=/usr/bin/python3 /home/pi/rpi-weatherstation/WS-web_livedataProvider.py
 WorkingDirectory=/home/pi/rpi-weatherstation/
 StandardOutput=inherit
 StandardError=inherit
