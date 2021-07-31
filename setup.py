@@ -6,7 +6,7 @@
 # python-v  | 3.5.3
 # -
 # file      | setup.py
-# file-v    | 1.1 // rework of first stable release, implementation of livedataProvider-setup
+# file-v    | 1.2 // rework of first stable release, implementation of livedataProvider-setup
 #
 # Ressources:
 # https://tutswiki.com/read-write-config-files-in-python/
@@ -31,7 +31,8 @@ class setup(object):
 
     def checkPackages():
         packages = ["datetime", "configparser", "threading", "smbus", "sqlite3", "ftplib", "traceback", "os"]
-
+        ret = True
+        
         for entry in packages:
             spec = importlib.util.find_spec(entry)
             if entry in sys.modules:
@@ -49,16 +50,18 @@ class setup(object):
                 globals()[entry] = importlib.import_module(entry)
             except:
                 print("[ERROR] something went wrong while importing packages (didn't find: " + entry + ")")
-
+                ret = False
+        return ret
+        
 
     def setValues(self):
         print("[INFO] please fill in the next questions, typing nothing will change nothing (preset values are being kept)\n")
         sec = str(input("Please enter the duration between each run: (preset: 15 sec)\n"))
         sync_time = str(input("Please enter the duration between each serversychronisation: (preset: 3600 sec / 1h)\n"))
         air_quality_time = str(input("Please enter the duration between each run of the air_quality measurement: (preset: 8 loops are being skipped (8*15 = 2 min))\n"))
-        prebaseFilePath = str(input("Please enter the home directory: (preset: " + os.getcwd() + "/rpi-weatherstation | typing nothing will parse current directory)\n"))
+        prebaseFilePath = str(input("Please enter the home directory: (preset: " + os.getcwd() + "| typing nothing will parse current directory)\n"))
         FTPShareIP = str(input("Please enter the IP of your FTPShare: (preset: 192.168.8.3)\n"))
-        FTPuname = str(input("Please enter the username for your FTP Share: (leave empty if no username is required\n"))
+        FTPuname = str(input("Please enter the username for your FTP Share: (leave empty if no username is required)\n"))
         FTPpwd = str(getpass.getpass("Password for FTP Share [letters hidden]: (type nothing if no password is required) \n"))
         FTPShareLoc = str(input("Please enter the home database directory of your FTPShare:\n"))
         cp = ConfigParser()
@@ -76,6 +79,7 @@ class setup(object):
             db["baseFilePath"] = prebaseFilePath
             self.baseFilePath = prebaseFilePath
         else:
+            db["baseFilePath"] = os.getcwd()
             self.baseFilePath = db["basefilepath"]
         if FTPShareIP != "":    
             db["FTPShareIP"] = FTPShareIP
@@ -116,14 +120,26 @@ class setup(object):
             print("[INFO] started station.service")
         else:
             print("[INFO] didn't start the service")    
+            
+        if str(input("[INFO] start livedata service now? (y/n) \n")) == "y":
+            os.system("sudo systemctl start livedataProvider.service")   
+            print("[INFO] started livedataProvider.service")
+        else:
+            print("[INFO] didn't start the service") 
 
 
     def enableService():
-        if str(input("[INFO] make systemservice enabled? (y/n) \n")) == "y":
+        if str(input("[INFO] make weather station service enabled? (y/n) \n")) == "y":
             os.system("sudo systemctl enable station.service")   
             print("[INFO] enabled station.service to start at boot")
         else:
-            print("[INFO] cancelled autostart")        
+            print("[INFO] cancelled autostart")
+            
+        if str(input("[INFO] make livedata service enabled? (y/n) \n")) == "y":
+            os.system("sudo systemctl enable livedataProvider.service")   
+            print("[INFO] enabled livedataProvider.service to start at boot")
+        else:
+            print("[INFO] cancelled autostart")  
 
     def __init__(self):
         if setup.checkRoot() == False:
