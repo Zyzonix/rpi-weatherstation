@@ -7,7 +7,7 @@
 # -
 # file      | Makefile
 # project   | rpi-weatherstation
-# version   | 2.9
+# version   | 3.0.0
 # 
 all: help
 
@@ -24,6 +24,7 @@ install:
 uninstall:
 	@echo ""
 	@echo "uninstalling rpi-weatherstation"
+	@echo "--> errors are due to the uninstallation process"
 	@echo ""
 	make stop-station
 	make stop-livedata
