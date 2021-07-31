@@ -7,7 +7,7 @@
 # -
 # file      | Makefile
 # project   | rpi-weatherstation
-# version   | 2.7
+# version   | 2.8
 # 
 all: help
 
@@ -30,7 +30,7 @@ uninstall:
 	make disable-station
 	make disable-livedata
 	sudo rm /lib/systemd/system/station.service
-	sudo rm /lib/systemd/system/livedataProvider.
+	sudo rm /lib/systemd/system/livedataProvider.service
 	sudo rm -rf $(CURDIR)
 	@echo ""
 	@echo "uninstallation of rpi-weatherstation finished"
