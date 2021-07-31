@@ -7,7 +7,7 @@
 # -
 # file      | Makefile
 # project   | rpi-weatherstation
-# version   | 3.1.0
+# version   | 3.1.1
 # 
 all: help
 
@@ -108,11 +108,11 @@ livedata-check:
 help:
 	@echo ""
 	@echo " |---------------------------- [rpi-weatherstation - HELP] ----------------------------|"
-	@echo " |										      |"		
+	@echo " |										      |"
 	@echo " |------------------------------------ [General] --------------------------------------|"
 	@echo " |- sudo make install................starts the setup script			      |"
 	@echo " |- sudo make uninstall..............removes the software from this device	      |"
-	@echo " |										      |"		
+	@echo " |										      |"
 	@echo " |--------------------------------- [weatherstation] ----------------------------------|"
 	@echo "	|- sudo make start-station..........starts the system service		      	      |"
 	@echo " |- sudo make stop-station...........stops the system service		      	      |"
