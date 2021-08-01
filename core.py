@@ -6,7 +6,7 @@
 # python-v  | 3.5.3
 # -
 # file      | core.py
-# file-v    | 1.3 // inserted new sync validation // stable release / revision 1
+# file-v    | 2.0 // updated setupscript and configfile 
 #
 # USING FOLLOWING RESSOURCE(S):
 # 
@@ -263,11 +263,12 @@ class Core(object):
 
     def __init__(self):
         # saving ressources global (like public) // retrieving missing from config file
-        configImport = ConfigParser()
+        configImport = ConfigParser(comment_prefixes='/', allow_no_value=True)
         # os.getcwd() returns execution directory
         configImport.read(os.getcwd() + "/setup/config.ini")
         # importing config data
         self.baseFilePath = configImport["DATABASE"]["baseFilePath"]
+        self.sync_enabled = configImport["DATABASE"].getboolean("sync_enabled")
         self.FTPServerIP = configImport["DATABASE"]["FTPServerIP"]
         self.FTPshareLoc = configImport["DATABASE"]["FTPShareLoc"]
         self.MES_TIME = int(configImport["CONFIGURATION"]["seconds"])
@@ -283,8 +284,11 @@ class Core(object):
         print("\n" + self.getTime(), "running core application \n")
         # running measurement
         handleMeasurement.retrieveData(self)
-        # initializing db sync with 5 seconds delay (prevents corrupted databases through double access)
-        threading.Timer(5, dbUpload.handleSync, [self]).start()
+        if self.sync_enabled:
+            # initializing db sync with 5 seconds delay (prevents corrupted databases through double access) if enabled
+            threading.Timer(5, dbUpload.handleSync, [self]).start()
+        else:
+            print(self.getTime(), "server syncronisation disabled - storing databases on local storage")
 
     
 

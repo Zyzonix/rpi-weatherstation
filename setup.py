@@ -6,7 +6,7 @@
 # python-v  | 3.5.3
 # -
 # file      | setup.py
-# file-v    | 1.2 // rework of first stable release, implementation of livedataProvider-setup
+# file-v    | 1.3 // rework of first stable release, implementation of livedataProvider-setup
 #
 # Ressources:
 # https://tutswiki.com/read-write-config-files-in-python/
@@ -18,16 +18,28 @@ from configparser import ConfigParser
 import traceback
 import getpass
 import importlib.util
+import platform
 
 
 class setup(object):
+
     def checkRoot():
         # checking sudo permissions
         if not os.getuid() == 0:
-            print("[ERROR] root / sudo permission requiered --> sudo python3 setup.py")
+            print("[ERROR] root / sudo permission required --> sudo python3 setup.py")
             return False
         else:
             print("[INFO] running with root permissions")  
+
+    def checkPythonVersion():
+        versionSplit = platform.python_version().split(".")
+        ret = True
+        if not int(versionSplit[0]) >= 3 or not int(versionSplit[1]) >= 6:
+            print("[ERROR] wrong python-version (current version: " + platform.python_version() +") --> please use/install python3.6+")
+            ret = False
+        else:
+            print("[INFO] python version matches the requirements")
+        return ret
 
     def checkPackages():
         packages = ["datetime", "configparser", "threading", "smbus", "sqlite3", "ftplib", "traceback", "os"]
@@ -57,13 +69,15 @@ class setup(object):
     def setValues(self):
         print("[INFO] please fill in the next questions, typing nothing will change nothing (preset values are being kept)\n")
         sec = str(input("Please enter the duration between each run: (preset: 15 sec)\n"))
-        sync_time = str(input("Please enter the duration between each serversychronisation: (preset: 3600 sec / 1h)\n"))
+        sync_time = str(input("Please enter the duration between each server sychronisation: (preset: 3600 sec / 1h)\n"))
         air_quality_time = str(input("Please enter the duration between each run of the air_quality measurement: (preset: 8 loops are being skipped (8*15 = 2 min))\n"))
-        prebaseFilePath = str(input("Please enter the home directory: (preset: " + os.getcwd() + "| typing nothing will parse current directory)\n"))
-        FTPShareIP = str(input("Please enter the IP of your FTPShare: (preset: 192.168.8.3)\n"))
-        FTPuname = str(input("Please enter the username for your FTP Share: (leave empty if no username is required)\n"))
-        FTPpwd = str(getpass.getpass("Password for FTP Share [letters hidden]: (type nothing if no password is required) \n"))
-        FTPShareLoc = str(input("Please enter the home database directory of your FTPShare:\n"))
+        prebaseFilePath = str(input("Please enter the home directory: (preset: " + os.getcwd() + "| typing nothing will set the current directory)\n"))
+        SyncEnabled = str(input("Should the syncronisation to a FTPShare be enabled? (y/n) \n"))
+        if SyncEnabled == "y":
+            FTPShareIP = str(input("Please enter the IP of your FTPShare: (preset: 192.168.8.3)\n"))
+            FTPuname = str(input("Please enter the username for your FTP Share: (leave empty if no username is required)\n"))
+            FTPpwd = str(getpass.getpass("Password for FTP Share [letters hidden]: (type nothing if no password is required) \n"))
+            FTPShareLoc = str(input("Please enter the home database directory of your FTPShare:\n"))
         cp = ConfigParser()
         cp.read(os.getcwd() + "/setup/config.ini")
         conf = cp["CONFIGURATION"]
@@ -81,14 +95,18 @@ class setup(object):
         else:
             db["baseFilePath"] = os.getcwd()
             self.baseFilePath = db["basefilepath"]
-        if FTPShareIP != "":    
-            db["FTPShareIP"] = FTPShareIP
-        if FTPuname != "":
-            db["uname"] = FTPuname  
-        if FTPpwd != "":
-            db["pwd"] = FTPpwd       
-        if FTPShareLoc != "":
-            db["FTPShareLoc"] = FTPShareLoc
+        if SyncEnabled == "y":
+            db["sync_enabled"] = "True"
+            if FTPShareIP != "":    
+                db["FTPShareIP"] = FTPShareIP
+            if FTPuname != "":
+                db["uname"] = FTPuname  
+            if FTPpwd != "":
+                db["pwd"] = FTPpwd       
+            if FTPShareLoc != "":
+                db["FTPShareLoc"] = FTPShareLoc
+        else:
+            db["sync_enabled"] = "False"
         with open(os.getcwd() + "/setup/config.ini", "w") as configfile:
             cp.write(configfile)
         print("[INFO] wrote data to configfile")
@@ -142,19 +160,28 @@ class setup(object):
             print("[INFO] cancelled autostart")  
 
     def __init__(self):
+        setupSuccessful = True
         if setup.checkRoot() == False:
+            return
+        if setup.checkPythonVersion() == False:
             return
         try:
             self.setValues()
             self.createFolders()
-            setup.checkPackages()
+            if setup.checkPackages() == False:
+                print("\n--------------------------------------------\n- something went wrong \n- please check if all required python-packages \nare installed properly\n--------------------------------------------\n")                    
+                setupSuccessful = False
             setup.checkService() 
             setup.startService()
             setup.enableService() 
         except:
-            print("\n----------------\nsomething went wrong - please retry! Stacktrace:\n----------------\n")    
+            print("\n--------------------------------------------\nsomething went wrong - please retry! stacktrace:\n--------------------------------------------\n")    
             traceback.print_exc()
-        print("\n----------------\nSETUP COMPLETED\n----------------\n")    
+        if setupSuccessful:
+            print("\n-------------------------\nSETUP COMPLETED SUCESSFULLY\n-------------------------\n")    
+        else:
+            print("\n-------------------------\nSETUP COMPLETED WITH ERRORS\n-------------------------\n")    
+
         
         
 if __name__ == "__main__":
