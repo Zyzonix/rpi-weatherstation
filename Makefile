@@ -7,7 +7,7 @@
 # -
 # file      | Makefile
 # project   | rpi-weatherstation
-# version   | 3.1.4
+# version   | 3.1.5
 # 
 all: help
 
@@ -63,9 +63,9 @@ disable-station:
 	@echo ""
 	sudo systemctl disable station.service
 
-station-status: station-check
+station-status: check-station
 # check status of service
-station-check: 
+check-station: 
 	@echo "checking weather station status"
 	@echo ""
 	@echo "the following error is due to the command - don't worry"
@@ -98,9 +98,9 @@ disable-livedata:
 	@echo ""
 	sudo systemctl disable livedataProvider.service
 
-station-livedata: livedata-check
+status-livedata: check-livedata
 # check status of livedata service
-livedata-check: 
+check-livedata: 
 	@echo "checking livedataProvider status"
 	@echo ""
 	@echo "the following error is due to the command - don't worry"
@@ -122,13 +122,13 @@ help:
 	@echo "- sudo make stop-station...........stops the system service"
 	@echo "- sudo make enable-station.........installs the system service"
 	@echo "- sudo make disable-station........uninstalls the system service"
-	@echo "- sudo make station-check..........shows the status of the station system service"
+	@echo "- sudo make check-station..........shows the status of the station system service"
 	@echo ""	
 	@echo "-------------------------------- [livedataProvider] ---------------------------------"
 	@echo "- sudo make start-livedata.........starts the livedata service"
 	@echo "- sudo make stop-livedata..........stops the livedata service"
 	@echo "- sudo make enable-livedata........installs the livedata service"	
 	@echo "- sudo make disable-livedata.......uninstalls the livedata service"
-	@echo "- sudo make livedata-check.........shows the status of the livedata system service"
+	@echo "- sudo make check-livedata.........shows the status of the livedata system service"
 	@echo "-------------------------------------------------------------------------------------"
 	@echo ""
