@@ -58,7 +58,7 @@ $ sudo python3 setup.py
 ```
 or
 ```
-$ sudo make setup
+$ sudo make install
 ```
 Fill in the questions, check the console output of the setup script if there are no errors displayed, then the setup process was successful and the weather station software is installed properly.
 
@@ -98,4 +98,4 @@ Command | Description
 This software is part of a school project developed by Zyzonix. It's goal was the development of an executeable software, that can retrieve environmental data, write these datasets into databases and display the stored data into graphs on a webserver. 
 (This repository only contains the first part, the webserver (second part) won't be published here within this repository, it can be found under Zyzonix/rpi-weatherstation-web)
 
-README-version: 1.7
+README-version: 1.8
