@@ -7,7 +7,7 @@
 # -
 # file      | Makefile
 # project   | rpi-weatherstation
-# version   | 3.1.6
+# version   | 3.1.7
 # 
 all: help
 
@@ -32,6 +32,14 @@ install:
 	@echo "RUNNIG SETUP SCRIPT"
 	@echo "-------------------"
 	sudo python3 setup.py
+	@echo ""
+	@echo "-----------------------"
+	@echo "INSTALLING PIP-PACKAGES"
+	@echo "-----------------------"
+	pip3 install pyserial
+	pip3 install uvicorn
+	pip3 install fastapi
+	pip3 install psutil
 	@echo ""
 	@echo "-------------------"
 	@echo "CHANGING DIR OWNERS"
