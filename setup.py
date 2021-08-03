@@ -6,7 +6,7 @@
 # python-v  | 3.5.3
 # -
 # file      | setup.py
-# file-v    | 1.7 // rework of first stable release, updated pip-packages
+# file-v    | 1.8 // rework of first stable release, updated pip-packages
 #
 # Ressources:
 # https://tutswiki.com/read-write-config-files-in-python/
@@ -42,7 +42,7 @@ class setup(object):
         return ret
 
     def checkPackages():
-        packages = ["datetime", "configparser", "threading", "smbus", "sqlite3", "ftplib", "traceback", "os", "psutil", "serial", "fastapi", "uvicorn"]
+        packages = ["datetime", "configparser", "threading", "smbus", "sqlite3", "ftplib", "traceback", "os", "psutil", "pyserial", "fastapi", "uvicorn"]
         ret = True
         
         for entry in packages:
