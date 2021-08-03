@@ -7,7 +7,7 @@
 # -
 # file      | Makefile
 # project   | rpi-weatherstation
-# version   | 3.1.5
+# version   | 3.1.6
 # 
 all: help
 
@@ -17,7 +17,27 @@ all: help
 install:
 	@echo "installing rpi-weatherstation"
 	@echo ""
+	@echo "--------"
+	@echo "UPDATING"
+	@echo "--------"
+	sudo apt update
+	@echo ""
+	@echo "--------------"
+	@echo "INSTALLING PIP"
+	@echo "---------------"
+	sudo apt install python3-pip
+	sudo apt install python-pip
+	@echo ""
+	@echo "-------------------"
+	@echo "RUNNIG SETUP SCRIPT"
+	@echo "-------------------"
 	sudo python3 setup.py
+	@echo ""
+	@echo "-------------------"
+	@echo "CHANGING DIR OWNERS"
+	@echo "-------------------"
+	sudo chown pi ./db/
+	sudo chown pi ./logs/
 	@echo "make installation finished"
 
 # removing all entries / files / folders
