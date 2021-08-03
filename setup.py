@@ -6,7 +6,7 @@
 # python-v  | 3.5.3
 # -
 # file      | setup.py
-# file-v    | 1.4 // rework of first stable release, updated pip-packages
+# file-v    | 1.5 // rework of first stable release, updated pip-packages
 #
 # Ressources:
 # https://tutswiki.com/read-write-config-files-in-python/
@@ -68,9 +68,9 @@ class setup(object):
 
     def setValues(self):
         print("[INFO] please fill in the next questions, typing nothing will change nothing (preset values are being kept)\n")
-        sec = str(input("Please enter the duration between each run: (preset: 15 sec)\n"))
+        sec = str(input("Please enter the duration between each run: (preset: 300 sec)\n"))
         sync_time = str(input("Please enter the duration between each server sychronisation: (preset: 3600 sec / 1h)\n"))
-        air_quality_time = str(input("Please enter the duration between each run of the air_quality measurement: (preset: 8 loops are being skipped (8*15 = 2 min))\n"))
+        air_quality_time = str(input("Please enter the duration between each run of the air_quality measurement: (preset: 8 loops are being skipped (2*300 = 10 min))\n"))
         prebaseFilePath = str(input("Please enter the home directory: (preset: " + os.getcwd() + "| typing nothing will set the current directory)\n"))
         SyncEnabled = str(input("Should the syncronisation to a FTPShare be enabled? (y/n) \n"))
         if SyncEnabled == "y":
