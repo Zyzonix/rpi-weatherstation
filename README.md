@@ -5,7 +5,7 @@
 [![OS-Type](https://img.shields.io/badge/OS%20Type-Linux-blue)]()
 [![Last updated](https://img.shields.io/badge/Last%20updated-28/07/2021-orange)]()
 [![Development completed](https://img.shields.io/badge/Development%20completed-true-darkgreen)]()
-[![Tests passed](https://img.shields.io/badge/Tests%20passed-false-red)]()
+[![Tests passed](https://img.shields.io/badge/Tests%20passed-true-green)]()
 
 ### Table of content
 * [The project](#the-project)
@@ -98,4 +98,4 @@ Command | Description
 This software is part of a school project developed by Zyzonix. It's goal was the development of an executeable software, that can retrieve environmental data, write these datasets into databases and display the stored data into graphs on a webserver. 
 (This repository only contains the first part, the webserver (second part) won't be published here within this repository, it can be found under Zyzonix/rpi-weatherstation-web)
 
-README-version: 1.8
+README-version: 1.9
