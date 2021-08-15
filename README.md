@@ -5,7 +5,7 @@
 [![OS-Type](https://img.shields.io/badge/OS%20Type-Linux-blue)]()
 [![Last updated](https://img.shields.io/badge/Last%20updated-28/07/2021-orange)]()
 [![Development completed](https://img.shields.io/badge/Development%20completed-true-darkgreen)]()
-[![Tests passed](https://img.shields.io/badge/Tests%20passed-true-green)]()
+[![Tests passed](https://img.shields.io/badge/Tests%20passed-true-darkgreen)]()
 
 ### Table of content
 * [The project](#the-project)
